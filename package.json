@@ -1,0 +1,31 @@
+{
+  "name": "business-plan-generator",
+  "version": "1.0.0",
+  "description": "A modern app that generates comprehensive business plans from brief business ideas",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "business-plan",
+    "business-model",
+    "startup",
+    "entrepreneurship",
+    "generator"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

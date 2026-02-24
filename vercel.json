@@ -1,0 +1,24 @@
+{
+  "buildCommand": "npm install",
+  "devCommand": "npm start",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "server/*.js": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "runtime": "nodejs20.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/server/server.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
+}
