@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const businessPlanGenerator = require('./businessPlanGenerator');
 
 const app = express();
@@ -42,7 +43,15 @@ app.get('/api/health', (req, res) => {
 
 // Serve index.html for all other routes (SPA routing)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  try {
+    const indexPath = path.join(__dirname, '../public/index.html');
+    const html = fs.readFileSync(indexPath, 'utf8');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (error) {
+    console.error('Error serving index.html:', error);
+    res.status(500).send('<h1>500: Internal Server Error</h1><p>Could not serve index.html</p>');
+  }
 });
 
 // Error handling middleware
