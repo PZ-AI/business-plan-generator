@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+    }
+    .test-button {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px 10px 0;
+    }
+    .test-button:hover {
+      background: #0056b3;
+    }
+    .output {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Business Plan Generator - API Test</h1>
+
+    <div>
+      <button class="test-button" onclick="testAPIHealth()">Test API Health</button>
+      <button class="test-button" onclick="testAPIGeneric()">Test Generic API</button>
+      <button class="test-button" onclick="testGeneratePlan()">Test Generate Plan</button>
+      <button class="test-button" onclick="clearOutput()">Clear Output</button>
+    </div>
+
+    <div class="output" id="output">
+      Click a button to test the API...
+    </div>
+  </div>
+
+  <script>
+    const outputDiv = document.getElementById('output');
+
+    function log(message, isError = false) {
+      const timestamp = new Date().toLocaleTimeString();
+      const className = isError ? 'error' : '';
+      outputDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+      outputDiv.scrollTop = outputDiv.scrollHeight;
+    }
+
+    function clearOutput() {
+      outputDiv.innerHTML = '';
+      log('Output cleared');
+    }
+
+    async function testAPIHealth() {
+      log('Testing /api/health...');
+      try {
+        const response = await fetch('/api/health');
+        const data = await response.json();
+        log(`✅ Health Check Success: ${JSON.stringify(data)}`, false);
+      } catch (error) {
+        log(`❌ Health Check Error: ${error.message}`, true);
+      }
+    }
+
+    async function testAPIGeneric() {
+      log('Testing /api/test...');
+      try {
+        const response = await fetch('/api/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ test: 'data' })
+        });
+        const data = await response.json();
+        log(`✅ Generic API Test Success: ${JSON.stringify(data)}`, false);
+      } catch (error) {
+        log(`❌ Generic API Test Error: ${error.message}`, true);
+      }
+    }
+
+    async function testGeneratePlan() {
+      log('Testing /api/generate-plan...');
+      log('Sending request with business idea...');
+      try {
+        const response = await fetch('/api/generate-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            businessIdea: 'AI chatbot for customer service',
+            industry: 'Technology',
+            targetMarket: 'Enterprise'
+          })
+        });
+
+        log(`Response status: ${response.status}`);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          log(`❌ API returned error: ${JSON.stringify(errorData)}`, true);
+          return;
+        }
+
+        const data = await response.json();
+        log(`✅ Plan Generation Success!`, false);
+        log(`Business Name: ${data.businessName}`);
+        log(`Plan ID: ${data.id}`);
+        log(`Plan sections: ${Object.keys(data).length} keys`);
+        log(`Full response keys: ${Object.keys(data).join(', ')}`);
+      } catch (error) {
+        log(`❌ Plan Generation Error: ${error.message}`, true);
+        log(`Error stack: ${error.stack}`, true);
+      }
+    }
+
+    // Test on page load
+    log('Page loaded. Click buttons to test API endpoints.');
+  </script>
+</body>
+</html>
