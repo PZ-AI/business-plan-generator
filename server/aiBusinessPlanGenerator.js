@@ -2,7 +2,8 @@
 // Uses built-in fetch (Node.js 18+)
 
 const GEMINI_API_KEY = process.env.GOOGLE_GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+// Using gemini-2.0-flash which is available in the free tier
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 async function callGemini(prompt) {
   try {
