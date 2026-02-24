@@ -23,16 +23,22 @@ app.post('/api/generate-plan', (req, res) => {
       return res.status(400).json({ error: 'Business idea is required' });
     }
 
+    console.log('Generating plan for:', businessIdea);
     const businessPlan = businessPlanGenerator.generateBusinessPlan({
       businessIdea,
       industry: industry || 'General',
       targetMarket: targetMarket || 'General Market',
     });
 
+    console.log('Plan generated successfully');
     res.json(businessPlan);
   } catch (error) {
-    console.error('Error generating business plan:', error);
-    res.status(500).json({ error: 'Failed to generate business plan' });
+    console.error('Error generating business plan:', error.message);
+    console.error('Full error:', error);
+    res.status(500).json({
+      error: 'Failed to generate business plan',
+      details: error.message
+    });
   }
 });
 
