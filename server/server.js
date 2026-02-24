@@ -22,7 +22,7 @@ app.get('/api/health', (req, res) => {
 // Test endpoint to verify API works
 app.post('/api/test', (req, res) => {
   console.log('=== TEST ENDPOINT ===');
-  res.json({ message: 'API is working', received: req.body });
+  res.json({ message: 'API is working! Routes are in correct order.', received: req.body });
 });
 
 // API endpoint to generate business plan
