@@ -1,6 +1,6 @@
-const aiBusinessPlanGenerator = require('../server/aiBusinessPlanGenerator');
+const businessPlanGenerator = require('../server/businessPlanGenerator');
 
-module.exports = async (req, res) => {
+module.exports = (req, res) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -25,8 +25,8 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Business idea is required' });
     }
 
-    console.log('Generating AI-powered plan with Google Gemini...');
-    const businessPlan = await aiBusinessPlanGenerator.generateBusinessPlan({
+    console.log('Generating business plan...');
+    const businessPlan = businessPlanGenerator.generateBusinessPlan({
       businessIdea: businessIdea.trim(),
       industry: industry || 'General',
       targetMarket: targetMarket || 'General Market',
