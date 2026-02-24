@@ -12,58 +12,85 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from public folder
-app.use(express.static(path.join(__dirname, '../public')));
-
-// API endpoint to generate business plan
-app.post('/api/generate-plan', (req, res) => {
-  try {
-    const { businessIdea, industry, targetMarket } = req.body;
-
-    if (!businessIdea || businessIdea.trim() === '') {
-      return res.status(400).json({ error: 'Business idea is required' });
-    }
-
-    console.log('Generating plan for:', businessIdea);
-    const businessPlan = businessPlanGenerator.generateBusinessPlan({
-      businessIdea,
-      industry: industry || 'General',
-      targetMarket: targetMarket || 'General Market',
-    });
-
-    console.log('Plan generated successfully');
-    res.json(businessPlan);
-  } catch (error) {
-    console.error('Error generating business plan:', error.message);
-    console.error('Full error:', error);
-    res.status(500).json({
-      error: 'Failed to generate business plan',
-      details: error.message
-    });
-  }
-});
+const publicPath = path.join(__dirname, '../public');
+app.use(express.static(publicPath));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// API endpoint to generate business plan
+app.post('/api/generate-plan', (req, res) => {
+  try {
+    console.log('=== API CALL: /api/generate-plan ===');
+    const { businessIdea, industry, targetMarket } = req.body;
+    console.log('Request body:', { businessIdea, industry, targetMarket });
+
+    if (!businessIdea || businessIdea.trim() === '') {
+      console.log('Error: No business idea provided');
+      return res.status(400).json({ error: 'Business idea is required' });
+    }
+
+    console.log('Generating business plan...');
+    const businessPlan = businessPlanGenerator.generateBusinessPlan({
+      businessIdea: businessIdea.trim(),
+      industry: industry || 'General',
+      targetMarket: targetMarket || 'General Market',
+    });
+
+    console.log('Plan generated successfully, sending response...');
+    console.log('Plan keys:', Object.keys(businessPlan));
+
+    res.setHeader('Content-Type', 'application/json');
+    res.json(businessPlan);
+    console.log('Response sent successfully');
+  } catch (error) {
+    console.error('=== ERROR in /api/generate-plan ===');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+
+    res.status(500).json({
+      error: 'Failed to generate business plan',
+      details: error.message,
+      type: error.constructor.name
+    });
+  }
+});
+
 // Serve index.html for all other routes (SPA routing)
 app.get('*', (req, res) => {
   try {
-    const indexPath = path.join(__dirname, '../public/index.html');
+    console.log('Serving index.html for route:', req.path);
+    const indexPath = path.join(publicPath, 'index.html');
+
+    // Check if file exists
+    if (!fs.existsSync(indexPath)) {
+      console.error('index.html not found at:', indexPath);
+      console.error('publicPath:', publicPath);
+      console.error('Files in publicPath:', fs.readdirSync(publicPath));
+      return res.status(404).send('<h1>404: index.html not found</h1>');
+    }
+
     const html = fs.readFileSync(indexPath, 'utf8');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(html);
   } catch (error) {
-    console.error('Error serving index.html:', error);
-    res.status(500).send('<h1>500: Internal Server Error</h1><p>Could not serve index.html</p>');
+    console.error('Error serving index.html:', error.message);
+    res.status(500).send('<h1>500: Internal Server Error</h1><p>' + error.message + '</p>');
   }
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  console.error('=== ERROR MIDDLEWARE ===');
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: err.message
+  });
 });
 
 // For local development
