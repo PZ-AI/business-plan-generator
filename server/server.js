@@ -20,6 +20,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Test endpoint to verify API works
+app.post('/api/test', (req, res) => {
+  console.log('=== TEST ENDPOINT ===');
+  res.json({ message: 'API is working', received: req.body });
+});
+
 // API endpoint to generate business plan
 app.post('/api/generate-plan', (req, res) => {
   try {
@@ -32,17 +38,35 @@ app.post('/api/generate-plan', (req, res) => {
       return res.status(400).json({ error: 'Business idea is required' });
     }
 
-    console.log('Generating business plan...');
+    console.log('About to call generateBusinessPlan function...');
+    console.log('businessPlanGenerator type:', typeof businessPlanGenerator);
+    console.log('businessPlanGenerator keys:', Object.keys(businessPlanGenerator));
+
+    // Check if function exists
+    if (typeof businessPlanGenerator.generateBusinessPlan !== 'function') {
+      throw new Error('generateBusinessPlan is not a function. Available: ' + Object.keys(businessPlanGenerator).join(', '));
+    }
+
+    console.log('Calling generateBusinessPlan...');
     const businessPlan = businessPlanGenerator.generateBusinessPlan({
       businessIdea: businessIdea.trim(),
       industry: industry || 'General',
       targetMarket: targetMarket || 'General Market',
     });
 
-    console.log('Plan generated successfully, sending response...');
+    console.log('Plan generated successfully');
+    console.log('Plan type:', typeof businessPlan);
+    console.log('Plan is null/undefined:', businessPlan == null);
+
+    if (!businessPlan) {
+      throw new Error('generateBusinessPlan returned null or undefined');
+    }
+
     console.log('Plan keys:', Object.keys(businessPlan));
 
     res.setHeader('Content-Type', 'application/json');
+    const jsonString = JSON.stringify(businessPlan);
+    console.log('JSON stringified, length:', jsonString.length);
     res.json(businessPlan);
     console.log('Response sent successfully');
   } catch (error) {
